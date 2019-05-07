@@ -100,35 +100,50 @@ public class FlutterMobPlugin implements MethodCallHandler {
         }
 
         @Override
-        public void afterEvent(int event, int i, Object data) {
+        public void afterEvent(int event, int i, final Object data) {
             if (i == SMSSDK.RESULT_COMPLETE) {
                 //回调完成
                 switch (event) {
                     case SMSSDK.EVENT_GET_VERIFICATION_CODE:
                         //获取验证码成功
-                        HashMap<String, Object> get = new HashMap<>();
-                        get.put("status", 0);
-                        get.put("msg", "success");
-                        result.success(get);
+                        registrar.activity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                HashMap<String, Object> get = new HashMap<>();
+                                get.put("status", 0);
+                                get.put("msg", "success");
+                                result.success(get);
+                            }
+                        });
                         break;
                     case SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE:
                         //提交验证码成功
-                        HashMap<String, Object> commit = new HashMap<>();
-                        commit.put("status", 0);
-                        commit.put("msg", "success");
-                        result.success(commit);
+                        registrar.activity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                HashMap<String, Object> commit = new HashMap<>();
+                                commit.put("status", 0);
+                                commit.put("msg", "success");
+                                result.success(commit);
+                            }
+                        });
                         break;
                 }
             } else {
-                try {
-                    JSONObject json = new JSONObject(((Throwable) data).getMessage());
-                    HashMap<String, Object> map = new HashMap<>();
-                    map.put("status", 1);
-                    map.put("msg", json.getString("detail"));
-                    result.success(map);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                registrar.activity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject json = new JSONObject(((Throwable) data).getMessage());
+                            HashMap<String, Object> map = new HashMap<>();
+                            map.put("status", 1);
+                            map.put("msg", json.getString("detail"));
+                            result.success(map);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         }
     }
